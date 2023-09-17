@@ -1,8 +1,16 @@
 "use client"
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 import {BsGoogle} from "react-icons/bs"
 export default function Page() {
     const [email,setEmail] = useState("")
+    const emailSignIn = (e:any) =>{
+      e.preventDefault()
+      signIn("email")
+    }
+    const googleSignIn = ()=>{
+      signIn("google")
+    }
     return (
       <>
         <div className="bg-green-100 min-h-screen flex justify-center items-center">
@@ -15,7 +23,7 @@ export default function Page() {
             {/* Right section (Login form) */}
             <div className="w-full md:w-[50%] p-5 md:p-10 flex flex-col justify-center items-center">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-4 md:mb-6">Login</h2>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={emailSignIn}>
                 <div className="mb-4">
                   <label htmlFor="email" className="block text-lg font-semibold text-green-600">
                     Email Address
@@ -38,7 +46,7 @@ export default function Page() {
                   >
                     Login
                   </button>
-                  <button
+                  <button onClick={googleSignIn}
                     type="button"
                     className="bg-red-600 flex justify-center items-center hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-red-200"
                   >
