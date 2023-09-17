@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react";
-
+import {BsGoogle} from "react-icons/bs"
 export default function Page() {
     const [email,setEmail] = useState("")
     return (
@@ -40,9 +40,9 @@ export default function Page() {
                   </button>
                   <button
                     type="button"
-                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-red-200"
+                    className="bg-red-600 flex justify-center items-center hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-red-200"
                   >
-                    Login with Google
+                    <BsGoogle className="mr-2"/> Continue With Google
                   </button>
                 </div>
               </form>
