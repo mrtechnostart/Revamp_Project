@@ -22,9 +22,7 @@ export default function Page(){
     console.log(data.data.user.email)
     return(
         <>
-        {data && data.data.user.email}
-        Hello World
-        
+        Hii From Profile Page
         </>
     )
 }
