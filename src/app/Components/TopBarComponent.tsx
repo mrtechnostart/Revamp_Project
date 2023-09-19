@@ -1,6 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+
 function TopBarComponent() {
+  const { data: session } = useSession();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   return (
     <nav className="bg-green-400 text-white p-4 flex justify-between items-center border-b-2">
       <div className="text-2xl font-bold">
@@ -9,16 +17,19 @@ function TopBarComponent() {
       <div>
         <ul className="flex space-x-4">
           <li><Link href="/dashboard">Home</Link></li>
-          <li><a href="#about">About</a></li>
+          <li><Link href="/dashboard/profile">
+            Profile
+          </Link></li>
           {/* Add more navigation links as needed */}
         </ul>
       </div>
       <div>
-      <Link href="/dashboard/profile">
-        <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">  
-          Profile
-        </button>
-      </Link>
+          <button
+            onClick={handleLogout}
+            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600"
+          >
+            Logout
+          </button>
       </div>
     </nav>
   );

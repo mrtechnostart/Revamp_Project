@@ -100,6 +100,7 @@ export default function Page() {
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
             placeholder="Enter your name"
+            required
           />
         </div>
         <div className="mb-4">
@@ -107,6 +108,7 @@ export default function Page() {
           <input
             type="text"
             id="phone"
+            required
             name="phone"
             value={formData.phone}
             onChange={handleChange}
@@ -119,6 +121,7 @@ export default function Page() {
           <input
             type="text"
             id="phone"
+            required
             name="phone"
             value={session?.user?.email}
             readOnly
@@ -131,6 +134,7 @@ export default function Page() {
           <textarea
             id="address"
             name="address"
+            required
             value={formData.address}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
