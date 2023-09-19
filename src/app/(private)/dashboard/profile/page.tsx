@@ -1,14 +1,15 @@
-"use client"
+"use client";
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 
 export default function Page() {
-    const [user,setUser] = useState({})
+    const [isLoading,setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: user.name || '',
-    phone: user.phone || '',
-    address: user.address || '',
+    id:'',
+    name: '',
+    phone: '',
+    address: '',
   });
 
   const handleChange = (e) => {
@@ -18,23 +19,48 @@ export default function Page() {
       [name]: value,
     });
   };
-  const {data:session} = useSession()
-  useEffect(()=>{
-    const userData = session?.user?.email
-    if (session){
-        (async()=>{
-            const data = await axios.post('/api/data',{
-                email:userData
-            })
-            setFormData(data)
-        })()
+  const { data: session } = useSession();
+  
+  useEffect(() => {
+    const userData = session?.user?.email;
+    if (session) {
+      (async () => {
+        try {
+          const response = await axios.post('/api/data', {
+            email: userData,
+          });
+          // Assuming the response data structure matches your expected user data
+          setFormData({
+            id:response.data.user.id || '',
+            name: response.data.user.name || '',
+            phone: response.data.user.phone || '',
+            address: response.data.user.address || '',
+          });
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      })();
     }
-  },[session])
-  const handleSubmit = (e) => {
+  }, [session]);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // You can perform an API call to update the user's profile here
-    console.log('Updated Profile:', formData);
-    // Reset the form or handle success/failure as needed
+    setLoading(true)
+    try {
+      // Assuming you have an API route for updating user data
+      const response = await axios.post('/api/updateprofile', {
+        id:formData.id,
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address
+      });
+      console.log('Updated Profile:', response.data);
+      // Handle success or failure as needed
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }finally{
+        setLoading(false)
+    }
+    console.log(formData)
   };
 
   return (
@@ -66,6 +92,18 @@ export default function Page() {
           />
         </div>
         <div className="mb-4">
+          <label htmlFor="phone" className="block text-gray-600">Phone</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={session?.user?.email}
+            readOnly
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+            placeholder="EmailId"
+          />
+        </div>
+        <div className="mb-4">
           <label htmlFor="address" className="block text-gray-600">Address</label>
           <textarea
             id="address"
@@ -80,13 +118,13 @@ export default function Page() {
         <div className="text-center">
           <button
             type="submit"
+            disabled={isLoading}
             className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
           >
-            Update Profile
+            {isLoading?"Please Wait":"Submit"}
           </button>
         </div>
       </form>
     </div>
   );
 }
-
