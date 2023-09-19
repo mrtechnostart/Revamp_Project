@@ -16,8 +16,8 @@ export default function Page() {
         <div className="bg-green-100 min-h-screen flex justify-center items-center">
           <div className="flex flex-col md:flex-row min-h-[60vh] min-w-[90vw] bg-green-50 text-black shadow-2xl rounded-2xl lg:min-w-[60vw] md:min-w-[70vw] sm:min-w-[60vw]">
             {/* Left section */}
-            <div className="min-w-[50%] min-h-full opacity-15 p-5 md:pt-20">
-              <img src="/images/revamp1.png" alt="revampLogo" className="h-60 mx-auto" />
+            <div className="min-w-[50%] min-h-full opacity-15 flex justify-center py-5 md:py-0 items-center">
+              <img src="/images/revamp1.png" alt="revampLogo" className="h-60" />
             </div>
   
             {/* Right section (Login form) */}
