@@ -8,7 +8,7 @@ function TopBarComponent() {
       </div>
       <div>
         <ul className="flex space-x-4">
-          <li><a href="#home">Home</a></li>
+          <li><Link href="/dashboard">Home</Link></li>
           <li><a href="#about">About</a></li>
           {/* Add more navigation links as needed */}
         </ul>

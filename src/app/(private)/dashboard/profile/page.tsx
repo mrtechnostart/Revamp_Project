@@ -2,6 +2,8 @@
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Page() {
     const [isLoading,setLoading] = useState(false)
@@ -54,9 +56,29 @@ export default function Page() {
         address: formData.address
       });
       console.log('Updated Profile:', response.data);
+      toast.success('Profile Updated Successfull', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
       // Handle success or failure as needed
     } catch (error) {
       console.error('Error updating user data:', error);
+      toast.error('Something Went Wrong', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
     }finally{
         setLoading(false)
     }
@@ -64,6 +86,7 @@ export default function Page() {
   };
 
   return (
+    <>
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-semibold mb-4">Update Your Profile</h2>
       <form onSubmit={handleSubmit}>
@@ -113,18 +136,20 @@ export default function Page() {
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
             placeholder="Enter your address"
             rows="4"
-          ></textarea>
+            ></textarea>
         </div>
         <div className="text-center">
           <button
             type="submit"
             disabled={isLoading}
             className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
-          >
+            >
             {isLoading?"Please Wait":"Submit"}
           </button>
         </div>
       </form>
     </div>
+    <ToastContainer/>
+              </>
   );
 }
