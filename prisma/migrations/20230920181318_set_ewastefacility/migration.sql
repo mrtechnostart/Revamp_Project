@@ -1,4 +1,15 @@
 -- CreateTable
+CREATE TABLE "RepairFacility" (
+    "id" TEXT NOT NULL,
+    "state" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
+    "pincode" TEXT,
+
+    CONSTRAINT "RepairFacility_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,

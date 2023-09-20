@@ -7,6 +7,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model RepairFacility {
+  id String @id @default(cuid())
+  state String
+  address String
+  city String
+  pincode String?
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
