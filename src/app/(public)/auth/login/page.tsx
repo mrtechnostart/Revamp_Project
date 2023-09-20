@@ -6,7 +6,9 @@ export default function Page() {
     const [email,setEmail] = useState("")
     const emailSignIn = (e:any) =>{
       e.preventDefault()
-      signIn("email")
+      signIn("email",{
+        email:email
+      })
     }
     const googleSignIn = ()=>{
       signIn("google")
