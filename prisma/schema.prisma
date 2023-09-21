@@ -8,10 +8,10 @@ generator client {
 }
 
 model RepairFacility {
-  id String @id @default(cuid())
-  state String
+  id      String  @id @default(cuid())
+  state   String
   address String
-  city String
+  city    String
   pincode String?
 }
 
@@ -48,6 +48,8 @@ model User {
   email         String?   @unique
   phone         String?
   address       String?
+  state         String?
+  city          String?
   emailVerified DateTime?
   image         String?
   accounts      Account[]
