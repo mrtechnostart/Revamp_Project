@@ -42,7 +42,7 @@ export default function Page() {
             name: response.data.user.name || '',
             phone: response.data.user.phone || '',
             city: response.data.user.city || 'Ghaziabad', // Default city value
-            state: response.data.user.state || 'Uttar Pradesh', // Default state value
+            state: response.data.user.state || 'Uttar Pradesh', 
             address: response.data.user.address || '',
           });
         } catch (error) {
