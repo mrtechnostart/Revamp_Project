@@ -5,7 +5,7 @@ const DeviceCard = ({ device }) => {
     device;
 
   return (
-    <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 mx-4 my-4 bg-white rounded-md overflow-hidden shadow-lg">
+    <div className="mx-4 my-4 bg-white rounded-md overflow-hidden shadow-lg">
       <div className="p-6">
         <h2 className="text-xl font-bold mb-2">{deviceName}</h2>
 
