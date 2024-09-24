@@ -11,7 +11,7 @@ function TopBarComponent() {
 
   return (
     <nav className="bg-green-400 text-white p-4 flex justify-between items-center border-b-2">
-      <div className="text-2xl font-bold">Revamp</div>
+      <div className="text-2xl font-bold">Ecocycle</div>
       <div>
         <ul className="flex space-x-4">
           <li>
