@@ -6,7 +6,7 @@ import AuthProvider from '@/app/Components/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Ecocycle',
+  title: 'Aavartak',
   description: 'Navigating E-Waste Management',
 }
 
