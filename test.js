@@ -4526,8 +4526,8 @@ const myData = [
 ];
 
 const ram = async () => {
-  const data = await prisma.repairFacility.createMany({
-    data: RepairFacility,
+  const data = await prisma.user.createMany({
+    data: myData,
   });
   console.log(data);
 };

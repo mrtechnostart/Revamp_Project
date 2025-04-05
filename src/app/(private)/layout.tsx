@@ -11,7 +11,6 @@ interface Props {
 
 export default function PrivateLayout({ children }: Props) {
   const { data: session, status } = useSession();
-  console.log(session);
 
   if (status === "authenticated") {
     return (

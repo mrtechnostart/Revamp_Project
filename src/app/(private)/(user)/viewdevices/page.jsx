@@ -1,65 +1,57 @@
 "use client";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { useEthers } from "@usedapp/core";
+import { ethers, Contract } from "ethers";
+import EWasteABI from "../../../../../constants/abi.json"; // adjust if needed
 
-// Your Page component
-export default function Page() {
-  const [data, setData] = useState(null);
+const GetMyRequests = () => {
+  const { account, library } = useEthers();
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMyRequests = async () => {
+    if (!account || !library) return;
+    try {
+      setLoading(true);
+      const signer = library.getSigner();
+      const contract = new Contract(
+        "0xa1aeF1462881aF72e54a31f67251C093333fAB6a", // contract address
+        EWasteABI.abi,
+        signer
+      );
+      const result = await contract.getMyRequests();
+      setRequests(result);
+    } catch (err) {
+      console.error("Error calling getMyRequests:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/api/submitdevice");
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  console.log(data);
+    fetchMyRequests();
+  }, [account]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Submitted Devices</h1>
-
-      {data && data.data.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {data.data.map((element) => (
-            <div
-              key={element.id}
-              className="bg-white p-4 rounded-md border border-gray-300 shadow-lg"
-            >
-              <h2 className="text-xl font-bold mb-2">
-                Device Name: {element.deviceName}
-              </h2>
-              <p className="text-gray-700 mb-2">
-                Description: {element.description}
-              </p>
-              <p
-                className={`text-${
-                  element.isAccepted ? "green" : "red"
-                }-500 mb-2`}
-              >
-                Status: {element.isAccepted ? "Accepted" : "Not Accepted"}
-              </p>
-              <p className="text-gray-700 mb-2">Problem: {element.problem}</p>
-              <p className="text-gray-700 mb-2">
-                Year of Purchase: {element.purchaseYear}
-              </p>
-              {element?.acceptedComment && (
-                <p className="text-gray-700 mb-2">
-                  Accepted Comment: {element?.acceptedComment}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">My Requests</h1>
+      {loading ? (
+        <p>Loading...</p>
+      ) : requests.length > 0 ? (
+        requests.map((item, index) => (
+          <div key={index} className="border p-4 rounded-md mb-2">
+            <p><strong>Device:</strong> {item.deviceName}</p>
+            <p><strong>Description:</strong> {item.description}</p>
+            <p><strong>Problem:</strong> {item.deviceIssue}</p>
+            <p><strong>Purchase Year:</strong> {item.purchaseYear}</p>
+            {/* Add more fields as needed */}
+          </div>
+        ))
       ) : (
-        <p className="text-gray-700">No submitted devices available.</p>
+        <p>No requests found.</p>
       )}
     </div>
   );
-}
+};
+
+export default GetMyRequests;

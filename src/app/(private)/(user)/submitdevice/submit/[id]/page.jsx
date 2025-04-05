@@ -7,7 +7,13 @@ import {
   failToast,
   successToast,
 } from "../../../../../Components/SuccessPopup";
+import EWasteABI from "../../../../../../../constants/abi.json"
+import { Contract } from "ethers"
+import { useEthers, useContractFunction } from "@usedapp/core"
+import { ethers } from "ethers"
+
 const RepairForm = ({ params }) => {
+  const { account, activateBrowserWallet } = useEthers()
   const { id } = params;
   const { data } = useSession();
   const [formData, setFormData] = useState({
@@ -16,6 +22,8 @@ const RepairForm = ({ params }) => {
     problem: "",
     description: "",
   });
+  const contractInterface = new ethers.utils.Interface(EWasteABI.abi)
+  const contract = new Contract("0xa1aeF1462881aF72e54a31f67251C093333fAB6a", contractInterface)
 
   const handleChange = (e) => {
     setFormData({
@@ -24,17 +32,32 @@ const RepairForm = ({ params }) => {
     });
   };
 
+  const { state, send } = useContractFunction(contract, "createRequest", {
+    transactionName: "Create Repair Request",
+  })
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const finalData = { ...formData, locationId: id, userId: data.user.id };
-      const response = await axios.post("/api/submitdevice", finalData);
-      if (response.status == 200) {
-        successToast("Successfull");
-        console.log("Successfull");
+  
+      if (!account) {
+        await activateBrowserWallet();
       }
-      console.log(response);
-      // You can perform any further actions here, such as submitting the data to an API
+  
+      // Convert date to year as uint16
+      const year = new Date(finalData.purchaseYear).getFullYear();
+  
+      // Send all required args in correct order
+      const tx = await send(
+        finalData.deviceName,
+        finalData.problem,        // maps to `_deviceIssue`
+        finalData.description,
+        year
+      );
+  
+      console.log(tx);
+  
     } catch (error) {
       console.error(error);
       failToast("Failed");
@@ -137,6 +160,12 @@ const RepairForm = ({ params }) => {
             Submit
           </button>
         </form>
+
+        <div className="mt-4">
+        {state.status === "Mining" && <p>Sending transaction...</p>}
+        {state.status === "Success" && <p className="text-green-500">Request submitted!</p>}
+        {state.status === "Exception" && <p className="text-red-500">Error: {state.errorMessage}</p>}
+      </div>
       </div>
       <Popup />
     </>
