@@ -35,7 +35,7 @@ const HomeDashboard = () => {
       <div className="w-full md:w-2/5 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all">
         <img
           className="w-full h-60 object-cover"
-          src="https://source.unsplash.com/random/800x400?electronics"
+          src="/images/bg.jpg"
           alt="View Device Requests"
         />
         <div className="p-6">
@@ -52,7 +52,7 @@ const HomeDashboard = () => {
       <div className="w-full md:w-2/5 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all">
         <img
           className="w-full h-60 object-cover"
-          src="https://source.unsplash.com/random/800x400?recycling"
+          src="/rnd2.jpg"
           alt="View Accepted Devices"
         />
         <div className="p-6">

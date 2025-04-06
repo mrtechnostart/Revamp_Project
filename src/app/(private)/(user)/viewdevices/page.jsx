@@ -27,7 +27,7 @@ const GetMyRequests = () => {
       setLoading(false);
     }
   };
-
+  console.log(requests,"Requests in getMyRequests");
   useEffect(() => {
     fetchMyRequests();
   }, [account]);
@@ -44,6 +44,7 @@ const GetMyRequests = () => {
             <p><strong>Description:</strong> {item.description}</p>
             <p><strong>Problem:</strong> {item.deviceIssue}</p>
             <p><strong>Purchase Year:</strong> {item.purchaseYear}</p>
+            <p><strong>isPaid:</strong> {item.isPaid ? "Paid" : "Not Paid"}</p>
             {/* Add more fields as needed */}
           </div>
         ))

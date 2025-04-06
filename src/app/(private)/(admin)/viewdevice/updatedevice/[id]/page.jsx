@@ -9,14 +9,13 @@ const CONTRACT_ADDRESS = "0x053163b513BDf257B0Ea35cb85082e5dA40C374D";
 
 const PayUserForm = ({ params }) => {
   const { account, library } = useEthers();
-  const userAddress = params.id; // this is the user's address, not a request ID
-  const [ethAmount, setEthAmount] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
-  const [requestId, setRequestId] = useState(null);
-  const [alreadyPaid, setAlreadyPaid] = useState(false);
+  const userAddress = params.id;
 
-  // Fetch the requestId for the given user address
+  const [requests, setRequests] = useState([]);
+  const [loadingMap, setLoadingMap] = useState({});
+  const [amountMap, setAmountMap] = useState({});
+  const [statusMap, setStatusMap] = useState({});
+
   useEffect(() => {
     const fetchUserRequests = async () => {
       if (!library) return;
@@ -24,107 +23,117 @@ const PayUserForm = ({ params }) => {
       try {
         const signer = library.getSigner();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, EWasteABI.abi, signer);
-        const requests = await contract.getUserRequests(userAddress);
-
-        if (requests.length === 0) {
-          setStatusMessage("❌ No request found for this user.");
-          return;
-        }
-
-        const request = requests[0]; // or latest: requests[requests.length - 1]
-        setRequestId(request.id);
-
-        if (request.isPaid) {
-          setAlreadyPaid(true);
-          setStatusMessage("✅ Payment has already been sent.");
-        }
+        const userRequests = await contract.getUserRequests(userAddress);
+        setRequests(userRequests);
       } catch (err) {
-        console.error("Error fetching user requests:", err);
-        setStatusMessage("❌ Failed to fetch user's requests.");
+        console.error("Error fetching requests:", err);
       }
     };
 
     fetchUserRequests();
   }, [library, userAddress]);
 
-  const handlePayment = async () => {
-    if (!library || !account) {
-      setStatusMessage("❌ Please connect your wallet.");
-      return;
-    }
+  const handleAmountChange = (requestId, value) => {
+    setAmountMap((prev) => ({ ...prev, [requestId]: value }));
+  };
 
-    if (!ethAmount || parseFloat(ethAmount) <= 0) {
-      setStatusMessage("❌ Please enter a valid ETH amount.");
-      return;
-    }
+  const handlePay = async (requestId) => {
+    if (!library || !account) return;
 
-    if (requestId === null) {
-      setStatusMessage("❌ No valid request ID found.");
+    const amount = amountMap[requestId];
+    if (!amount || parseFloat(amount) <= 0) {
+      setStatusMap((prev) => ({
+        ...prev,
+        [requestId]: "❌ Enter a valid ETH amount.",
+      }));
       return;
     }
 
     try {
-      setLoading(true);
-      setStatusMessage("⏳ Sending payment...");
+      setLoadingMap((prev) => ({ ...prev, [requestId]: true }));
+      setStatusMap((prev) => ({ ...prev, [requestId]: "⏳ Sending payment..." }));
 
       const signer = library.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, EWasteABI.abi, signer);
 
       const tx = await contract.payUser(requestId, {
-        value: ethers.utils.parseEther(ethAmount),
+        value: ethers.utils.parseEther(amount),
       });
 
       await tx.wait();
-      setAlreadyPaid(true);
-      setEthAmount("");
-      setStatusMessage("✅ Payment successful!");
+
+      setStatusMap((prev) => ({ ...prev, [requestId]: "✅ Payment successful!" }));
+
+      // Refresh request list
+      const updatedRequests = await contract.getUserRequests(userAddress);
+      setRequests(updatedRequests);
     } catch (err) {
       console.error(err);
-      setStatusMessage("❌ Transaction failed. Check the console for details.");
+      setStatusMap((prev) => ({ ...prev, [requestId]: "❌ Transaction failed." }));
     } finally {
-      setLoading(false);
+      setLoadingMap((prev) => ({ ...prev, [requestId]: false }));
     }
   };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Pay User {userAddress}</h1>
+      <h1 className="text-2xl font-bold mb-6">Pay User: {userAddress}</h1>
 
-      <div className="max-w-md mx-auto bg-white rounded-md overflow-hidden shadow-lg p-6">
-        <label className="block text-gray-700 text-sm font-bold mb-2">
-          Enter ETH Amount to Send:
-        </label>
-        <input
-          type="number"
-          min="0"
-          step="0.0001"
-          value={ethAmount}
-          onChange={(e) => setEthAmount(e.target.value)}
-          className="w-full px-3 py-2 mb-4 border rounded-md"
-          placeholder="0.01"
-          disabled={alreadyPaid}
-        />
+      {requests.length === 0 ? (
+        <p>No requests found.</p>
+      ) : (
+        requests.map((request) => (
+          <div
+            key={request.id}
+            className="bg-white rounded-lg shadow p-4 mb-4 border"
+          >
+            <h2 className="text-lg font-semibold mb-1">
+              Device: {request.deviceName}
+            </h2>
+            <p className="text-sm text-gray-600">
+              Issue: {request.deviceIssue}
+            </p>
+            <p className="text-sm text-gray-600 mb-2">
+              Purchase Year: {request.purchaseYear}
+            </p>
+            <p className="text-sm text-gray-600 mb-2">
+              Paid: {request.isPaid ? "✅ Yes" : "❌ No"}
+            </p>
 
-        <button
-          className={`${
-            loading || alreadyPaid
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-          } text-white px-4 py-2 rounded-full w-full`}
-          onClick={handlePayment}
-          disabled={loading || alreadyPaid}
-        >
-          {alreadyPaid
-            ? "Already Paid"
-            : loading
-            ? "Processing..."
-            : "Send ETH"}
-        </button>
+            <input
+              type="number"
+              step="0.0001"
+              placeholder="Enter ETH amount"
+              disabled={request.isPaid}
+              value={amountMap[request.id] || ""}
+              onChange={(e) => handleAmountChange(request.id, e.target.value)}
+              className="w-full px-3 py-2 border rounded mb-2"
+            />
 
-        {statusMessage && (
-          <p className="mt-4 text-center text-sm text-gray-700">{statusMessage}</p>
-        )}
-      </div>
+            <button
+              onClick={() => handlePay(request.id)}
+              disabled={loadingMap[request.id] || request.isPaid}
+              className={`w-full py-2 rounded text-white ${
+                request.isPaid
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {request.isPaid
+                ? "Already Paid"
+                : loadingMap[request.id]
+                ? "Processing..."
+                : "Send ETH"}
+            </button>
+
+            {statusMap[request.id] && (
+              <p className="text-sm mt-2 text-gray-700">
+                {statusMap[request.id]}
+              </p>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 };

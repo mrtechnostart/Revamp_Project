@@ -22,9 +22,8 @@ const Page = () => {
 
         const allRequests = await contract.getAllRequests();
 
-        // Filter requests where isPaid is true
         const paid = allRequests
-          .filter((request) => request.isPaid)
+          .filter((req) => req.isPaid) // Only include paid requests
           .map((req) => ({
             id: req.id.toString(),
             deviceName: req.deviceName,
@@ -53,7 +52,7 @@ const Page = () => {
         {paidDevices.map((device) => (
           <DeviceCard
             key={device.id}
-            device={{ ...device, work: "recover", isPaid: true }}
+            device={{ ...device, work: "recover" }}
             className="col-span-3 device-card"
           />
         ))}

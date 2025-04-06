@@ -11,7 +11,7 @@ const HomeDashboard = () => {
         <div className="w-full md:w-2/5 lg:w-2/5 xl:w-2/5 mx-4 my-4 bg-white rounded-md overflow-hidden shadow-lg">
           <img
             className="w-full h-60 object-cover object-center"
-            src="https://source.unsplash.com/random/800x400"
+            src="/images/bg.jpg"
             alt="Submit Devices"
             />
           <div className="p-6">
@@ -28,7 +28,7 @@ const HomeDashboard = () => {
         <div className="w-full md:w-2/5 lg:w-2/5 xl:w-2/5 mx-4 my-4 bg-white rounded-md overflow-hidden shadow-lg">
           <img
             className="w-full h-60 object-cover object-center"
-            src="https://source.unsplash.com/random/800x401"
+            src="/rnd2.jpg"
             alt="View Submitted Devices"
             />
           <div className="p-6">
