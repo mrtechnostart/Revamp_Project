@@ -7,7 +7,7 @@ import EWasteABI from "../../../constants/abi.json";
 import ConnectWallet from "@/app/Components/ConnectWallet";
 import Link from "next/link";
 
-const CONTRACT_ADDRESS = "0xa1aeF1462881aF72e54a31f67251C093333fAB6a"; // Replace with your actual contract address
+const CONTRACT_ADDRESS = "0x053163b513BDf257B0Ea35cb85082e5dA40C374D"; // Replace with your actual contract address
 
 const HomeDashboard = () => {
   const { account, library } = useEthers();

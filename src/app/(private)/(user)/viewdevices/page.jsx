@@ -15,7 +15,7 @@ const GetMyRequests = () => {
       setLoading(true);
       const signer = library.getSigner();
       const contract = new Contract(
-        "0xa1aeF1462881aF72e54a31f67251C093333fAB6a", // contract address
+        "0x053163b513BDf257B0Ea35cb85082e5dA40C374D", // contract address
         EWasteABI.abi,
         signer
       );

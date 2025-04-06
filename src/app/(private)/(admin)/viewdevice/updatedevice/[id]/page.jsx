@@ -1,105 +1,132 @@
 "use client";
-import axios from "axios";
-import { useState } from "react";
-import {
-  Popup,
-  failToast,
-  successToast,
-} from "../../../../../Components/SuccessPopup";
-const UpdateDevice = ({ params }) => {
-  const { id } = params;
-  console.log(id);
-  const [deviceDetails, setDeviceDetails] = useState({
-    isAccepted: true,
-    acceptedComment: "",
-  });
 
-  const handleAcceptance = async () => {
-    try {
-      console.log(deviceDetails);
+import { useEthers } from "@usedapp/core";
+import { ethers } from "ethers";
+import { useState, useEffect } from "react";
+import EWasteABI from "../../../../../../../constants/abi.json";
 
-      const response = await axios.patch("/api/submitdevice", {
-        id,
-        ...deviceDetails,
-      });
-      if (response.status == 200) {
-        console.log("Device updated successfully!");
-        console.log(response);
-        successToast("Device updated successfully!");
+const CONTRACT_ADDRESS = "0x053163b513BDf257B0Ea35cb85082e5dA40C374D";
+
+const PayUserForm = ({ params }) => {
+  const { account, library } = useEthers();
+  const userAddress = params.id; // this is the user's address, not a request ID
+  const [ethAmount, setEthAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [requestId, setRequestId] = useState(null);
+  const [alreadyPaid, setAlreadyPaid] = useState(false);
+
+  // Fetch the requestId for the given user address
+  useEffect(() => {
+    const fetchUserRequests = async () => {
+      if (!library) return;
+
+      try {
+        const signer = library.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, EWasteABI.abi, signer);
+        const requests = await contract.getUserRequests(userAddress);
+
+        if (requests.length === 0) {
+          setStatusMessage("❌ No request found for this user.");
+          return;
+        }
+
+        const request = requests[0]; // or latest: requests[requests.length - 1]
+        setRequestId(request.id);
+
+        if (request.isPaid) {
+          setAlreadyPaid(true);
+          setStatusMessage("✅ Payment has already been sent.");
+        }
+      } catch (err) {
+        console.error("Error fetching user requests:", err);
+        setStatusMessage("❌ Failed to fetch user's requests.");
       }
-    } catch (error) {
-      failToast("Something Went Wrong!");
-      console.error("Error updating device:", error);
+    };
+
+    fetchUserRequests();
+  }, [library, userAddress]);
+
+  const handlePayment = async () => {
+    if (!library || !account) {
+      setStatusMessage("❌ Please connect your wallet.");
+      return;
+    }
+
+    if (!ethAmount || parseFloat(ethAmount) <= 0) {
+      setStatusMessage("❌ Please enter a valid ETH amount.");
+      return;
+    }
+
+    if (requestId === null) {
+      setStatusMessage("❌ No valid request ID found.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setStatusMessage("⏳ Sending payment...");
+
+      const signer = library.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, EWasteABI.abi, signer);
+
+      const tx = await contract.payUser(requestId, {
+        value: ethers.utils.parseEther(ethAmount),
+      });
+
+      await tx.wait();
+      setAlreadyPaid(true);
+      setEthAmount("");
+      setStatusMessage("✅ Payment successful!");
+    } catch (err) {
+      console.error(err);
+      setStatusMessage("❌ Transaction failed. Check the console for details.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-4">Update Device</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">Pay User {userAddress}</h1>
 
-        <div className="max-w-md mx-auto bg-white rounded-md overflow-hidden shadow-lg">
-          {/* Display Device Details */}
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-2">Device ID: {id}</h2>
-            <div className="flex items-center mb-4">
-              <label className="block text-gray-700 text-sm font-bold mr-2">
-                Status:
-              </label>
-              <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                <input
-                  type="checkbox"
-                  id="statusSwitch"
-                  name="statusSwitch"
-                  checked={deviceDetails.isAccepted}
-                  onChange={() =>
-                    setDeviceDetails({
-                      ...deviceDetails,
-                      isAccepted: !deviceDetails.isAccepted,
-                    })
-                  }
-                  className={`toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer ${
-                    deviceDetails.isAccepted
-                      ? "border-green-500"
-                      : "border-red-500"
-                  } focus:outline-none focus:shadow-outline-blue`}
-                />
-                <label
-                  htmlFor="statusSwitch"
-                  className={`toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer ${
-                    deviceDetails.isAccepted ? "bg-green-500" : "bg-red-500"
-                  }`}
-                ></label>
-              </div>
-              <span className="text-sm text-gray-600">
-                {deviceDetails.isAccepted ? "Accepted" : "Not Accepted"}
-              </span>
-            </div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Accepted Comment:
-            </label>
-            <textarea
-              className="w-full h-20 px-3 py-2 mb-3 border rounded-md"
-              value={deviceDetails.acceptedComment}
-              onChange={(e) =>
-                setDeviceDetails({
-                  ...deviceDetails,
-                  acceptedComment: e.target.value,
-                })
-              }
-            ></textarea>
-            <button
-              className={`bg-blue-500 text-white px-4 py-2 rounded-full focus:outline-none`}
-              onClick={handleAcceptance}
-            >
-              Update Status
-            </button>
-          </div>
-        </div>
+      <div className="max-w-md mx-auto bg-white rounded-md overflow-hidden shadow-lg p-6">
+        <label className="block text-gray-700 text-sm font-bold mb-2">
+          Enter ETH Amount to Send:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="0.0001"
+          value={ethAmount}
+          onChange={(e) => setEthAmount(e.target.value)}
+          className="w-full px-3 py-2 mb-4 border rounded-md"
+          placeholder="0.01"
+          disabled={alreadyPaid}
+        />
+
+        <button
+          className={`${
+            loading || alreadyPaid
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
+          } text-white px-4 py-2 rounded-full w-full`}
+          onClick={handlePayment}
+          disabled={loading || alreadyPaid}
+        >
+          {alreadyPaid
+            ? "Already Paid"
+            : loading
+            ? "Processing..."
+            : "Send ETH"}
+        </button>
+
+        {statusMessage && (
+          <p className="mt-4 text-center text-sm text-gray-700">{statusMessage}</p>
+        )}
       </div>
-      <Popup />
-    </>
+    </div>
   );
 };
 
-export default UpdateDevice;
+export default PayUserForm;

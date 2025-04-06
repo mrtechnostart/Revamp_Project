@@ -23,7 +23,7 @@ const RepairForm = ({ params }) => {
     description: "",
   });
   const contractInterface = new ethers.utils.Interface(EWasteABI.abi)
-  const contract = new Contract("0xa1aeF1462881aF72e54a31f67251C093333fAB6a", contractInterface)
+  const contract = new Contract("0x053163b513BDf257B0Ea35cb85082e5dA40C374D", contractInterface)
 
   const handleChange = (e) => {
     setFormData({
